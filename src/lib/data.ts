@@ -8,7 +8,7 @@ export async function getHomeData() {
     payload.find({ collection: 'courses', where: { status: { equals: 'published' } }, sort: 'order', limit: 12, depth: 1 }),
     payload.find({ collection: 'centres', where: { showInSlider: { equals: true } }, sort: 'order', limit: 12, depth: 1 }),
     payload.find({ collection: 'toppers', where: { showInTicker: { equals: true } }, sort: 'order', limit: 40, depth: 0 }),
-    payload.find({ collection: 'testimonials', where: { featured: { equals: true } }, sort: 'order', limit: 6, depth: 1 }),
+    payload.find({ collection: 'testimonials', where: { featured: { equals: true } }, sort: 'order', limit: 40, depth: 1 }),
   ])
   return {
     settings,

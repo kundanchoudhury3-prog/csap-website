@@ -316,3 +316,32 @@ img { max-width: 100%; display: block; }
 .project-cards .body { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
 .project-cards h3 { margin: 0; font-size: 20px; line-height: 1.3; }
 .project-cards p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+/* Topper testimonials slideshow */
+.tstage { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 32px; min-height: clamp(520px, 44vw, 560px); overflow: hidden; box-shadow: 0 30px 60px -36px rgba(11, 26, 58, 0.35); }
+.tslide { position: absolute; inset: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: stretch; opacity: 0; transition: opacity 0.9s ease; pointer-events: none; }
+.tslide.on { opacity: 1; pointer-events: auto; }
+.tphoto { flex: 1 1 320px; max-width: 440px; position: relative; background: var(--navy); min-height: 280px; overflow: hidden; }
+.tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: top; transform: scale(1.08); transition: transform 6s ease-out; }
+.tslide.on .tphoto img { transform: scale(1); }
+.tphoto > span:first-child { position: absolute; inset: 0; display: grid; place-items: center; color: var(--gold-soft); font: 600 96px var(--serif); }
+.trank { position: absolute; left: 18px; bottom: 18px; padding: 8px 14px; border-radius: 999px; background: var(--gold); color: var(--navy); font-weight: 700; font-size: 14px; }
+.tcopy { flex: 999 1 380px; min-width: 0; padding: clamp(28px, 4vw, 56px); display: flex; flex-direction: column; justify-content: center; gap: 22px; opacity: 0; transform: translateY(18px); transition: opacity 0.8s 0.25s var(--ease), transform 0.8s 0.25s var(--ease); }
+.tslide.on .tcopy { opacity: 1; transform: none; }
+.tcopy blockquote { margin: 0; font-family: var(--serif); font-size: clamp(19px, 2vw, 26px); line-height: 1.5; color: var(--navy); }
+.tcopy figcaption { display: flex; flex-direction: column; gap: 2px; }
+.tcopy figcaption b { font-size: 19px; }
+.tcopy figcaption span { color: var(--gold-text); font-weight: 600; }
+.tnav { position: absolute; right: 20px; bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 999px; background: var(--chip); font-size: 13px; font-weight: 600; color: var(--muted); z-index: 2; }
+.tnav button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--navy); color: #fff; font-size: 22px; cursor: pointer; }
+.tnav button:hover { background: var(--gold); color: var(--navy); }
+.tstrip { display: flex; gap: 10px; margin-top: 18px; overflow-x: auto; padding: 4px 2px 8px; }
+.tstrip button { flex: none; width: 58px; height: 58px; border-radius: 50%; padding: 0; border: 3px solid transparent; overflow: hidden; cursor: pointer; background: var(--line); opacity: 0.55; transition: opacity 0.3s, border-color 0.3s, transform 0.3s; }
+.tstrip button img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.tstrip button.on { border-color: var(--gold); opacity: 1; transform: scale(1.08); }
+.tstrip button:hover { opacity: 1; }
+@media (max-width: 760px) {
+  .tstage { min-height: 760px; }
+  .tphoto { max-width: none; flex-basis: 100%; height: 320px; flex-grow: 0; }
+  .tnav { bottom: 14px; right: 14px; }
+}

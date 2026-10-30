@@ -1,6 +1,6 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
-import { parseExport, projectJobs, runImport } from '@/lib/wpImport'
+import { parseExport, projectJobs, runImport, testimonialJobs } from '@/lib/wpImport'
 
 // One-time WordPress import, run in batches on the server.
 // Disabled unless IMPORT_TOKEN and WP_EXPORT_URL are set — remove both after importing.
@@ -16,11 +16,11 @@ export async function POST(req: Request) {
   if (req.headers.get('authorization') !== `Bearer ${token}`) return new Response('Unauthorized', { status: 401 })
 
   const q = new URL(req.url).searchParams
-  const only = (q.get('only') || undefined) as 'posts' | 'pages' | 'resources' | 'projects' | undefined
+  const only = (q.get('only') || undefined) as 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | undefined
   const start = Number(q.get('start') || 0)
 
-  if (only === 'projects') {
-    cache = { url: 'projects', only, parsed: projectJobs() }
+  if (only === 'projects' || only === 'testimonials') {
+    cache = { url: only, only, parsed: only === 'projects' ? projectJobs() : testimonialJobs() }
   } else if (!cache || cache.url !== url || cache.only !== only) {
     const res = await fetch(url)
     if (!res.ok) return Response.json({ error: `Could not read export: HTTP ${res.status}` }, { status: 500 })

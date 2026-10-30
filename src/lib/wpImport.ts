@@ -9,8 +9,9 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import type { Payload } from 'payload'
 import { resourceTypes } from './resourceTypes'
 import { projectSeeds } from './projectSeeds'
+import { testimonialSeeds } from './testimonialSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -222,12 +223,18 @@ type Job =
   | { kind: 'resource'; rt: (typeof resourceTypes)[number]; item: Item }
   | { kind: 'fixed-redirects' }
   | { kind: 'project'; seed: (typeof projectSeeds)[number] }
+  | { kind: 'testimonial'; seed: (typeof testimonialSeeds)[number] }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
 /** Jobs that rebuild the old WordPress project pages as Government Projects (no XML needed). */
 export function projectJobs(): Parsed {
   return { jobs: projectSeeds.map((seed) => ({ kind: 'project' as const, seed })), attachments: new Map() }
+}
+
+/** Jobs that bring the old homepage testimonials in as Testimonials + Toppers. */
+export function testimonialJobs(): Parsed {
+  return { jobs: testimonialSeeds.map((seed) => ({ kind: 'testimonial' as const, seed })), attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -274,6 +281,19 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'testimonial') {
+    const t = job.seed
+    const photo = await importFile(payload, t.photo, t.name)
+    const tData = { name: t.name, rank: t.rank, quote: t.quote, photo: photo ?? undefined, featured: true, order: t.order }
+    const ft = await payload.find({ collection: 'testimonials', where: { name: { equals: t.name } }, limit: 1, depth: 0 })
+    if (ft.docs[0]) await payload.update({ collection: 'testimonials', id: ft.docs[0].id, data: tData })
+    else await payload.create({ collection: 'testimonials', data: tData })
+    const pData = { name: t.name, rank: t.rank, photo: photo ?? undefined, showInTicker: true, order: t.order }
+    const fp = await payload.find({ collection: 'toppers', where: { name: { equals: t.name } }, limit: 1, depth: 0 })
+    if (fp.docs[0]) await payload.update({ collection: 'toppers', id: fp.docs[0].id, data: pData })
+    else await payload.create({ collection: 'toppers', data: pData })
+    return t.name
   }
   if (job.kind === 'project') {
     const sd = job.seed
@@ -382,7 +402,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

@@ -11,6 +11,7 @@ import { listPosts, listProjects } from '@/lib/content'
 import { resourceTypes } from '@/lib/resourceTypes'
 import { LeadForm } from '@/components/LeadForm'
 import { RevealObserver } from '@/components/RevealObserver'
+import { TestimonialsSlider } from '@/components/TestimonialsSlider'
 import { formatINR, getHomeData } from '@/lib/data'
 import { fallbackCourses, fallbackTestimonials, fallbackToppers } from '@/lib/fallback'
 import { mediaAlt, mediaUrl } from '@/lib/media'
@@ -38,6 +39,8 @@ export default async function HomePage() {
   const at = hl ? title.indexOf(hl) : -1
   const heroTitle =
     at >= 0 ? <>{title.slice(0, at)}<em>{hl}</em>{title.slice(at + hl.length)}</> : title
+
+  const heroImg = mediaUrl(s.heroImage, 'hero')
 
   const slides: Slide[] = centres.length
     ? centres.map((c) => ({ name: c.name, address: c.address, img: mediaUrl(c.photo, 'hero'), alt: mediaAlt(c.photo, `${c.name} classroom`) }))
@@ -80,24 +83,13 @@ export default async function HomePage() {
                 </div>
               )}
             </div>
-            <div className="hero-visual rise" style={{ ['--d' as string]: '.22s' }}>
-              <div className="hero-photo">
-                {mediaUrl(s.heroImage, 'hero') ? (
-                  <img src={mediaUrl(s.heroImage, 'hero')!} alt={mediaAlt(s.heroImage, 'CSAP IAS Academy students')} />
-                ) : null}
-              </div>
-              {toppers[0] || fallbackToppers[0] ? (
-                <div className="float-card" style={{ left: 0, bottom: 48 }}>
-                  <span className="ico">
-                    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1A3A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z" /><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" /></svg>
-                  </span>
-                  <span><b>{(toppers[0] || fallbackToppers[0]).rank}</b><small>{(toppers[0] || fallbackToppers[0]).name}</small></span>
+            {heroImg && (
+              <div className="hero-visual rise" style={{ ['--d' as string]: '.22s' }}>
+                <div className="hero-photo">
+                  <img src={heroImg} alt={mediaAlt(s.heroImage, 'CSAP IAS Academy students')} />
                 </div>
-              ) : null}
-              <div className="float-card" style={{ right: 0, top: 40, flexDirection: 'column', alignItems: 'flex-start', gap: 0, animationDelay: '1.2s' }}>
-                <b>Mentored by IAS officers</b><small>Strategy + personal guidance</small>
               </div>
-            </div>
+            )}
           </div>
         </section>
 
@@ -228,19 +220,10 @@ export default async function HomePage() {
               <span className="eyebrow">Success stories</span>
               <h2 className="h2">In our toppers&apos; own words</h2>
             </div>
-            <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-              {quotes.map((q, i) => {
-                const photo = 'photo' in q ? mediaUrl(q.photo, 'card') : null
-                return (
-                  <figure key={i} className="card quote reveal" style={{ ['--d' as string]: `${i * 0.12}s` }}>
-                    <blockquote>&ldquo;{q.quote}&rdquo;</blockquote>
-                    <figcaption className="who">
-                      <span className="avatar">{photo ? <img src={photo} alt="" /> : q.name.charAt(0)}</span>
-                      <span><b>{q.name}</b>{q.rank && <span>{q.rank}</span>}</span>
-                    </figcaption>
-                  </figure>
-                )
-              })}
+            <div className="reveal">
+              <TestimonialsSlider
+                items={quotes.map((q) => ({ name: q.name, rank: q.rank, quote: q.quote, photo: 'photo' in q ? mediaUrl(q.photo, 'card') : null }))}
+              />
             </div>
           </div>
         </section>
