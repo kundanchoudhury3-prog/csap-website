@@ -8,8 +8,9 @@ import { JSDOM } from 'jsdom'
 import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import type { Payload } from 'payload'
 import { resourceTypes } from './resourceTypes'
+import { projectSeeds } from './projectSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -220,8 +221,14 @@ type Job =
   | { kind: 'page'; item: Item }
   | { kind: 'resource'; rt: (typeof resourceTypes)[number]; item: Item }
   | { kind: 'fixed-redirects' }
+  | { kind: 'project'; seed: (typeof projectSeeds)[number] }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
+
+/** Jobs that rebuild the old WordPress project pages as Government Projects (no XML needed). */
+export function projectJobs(): Parsed {
+  return { jobs: projectSeeds.map((seed) => ({ kind: 'project' as const, seed })), attachments: new Map() }
+}
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_', parseTagValue: false, trimValues: false, processEntities: true, htmlEntities: true })
@@ -267,6 +274,29 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'project') {
+    const sd = job.seed
+    const coverUrl = 'cover' in sd && sd.cover ? sd.cover : sd.gallery[0][0]
+    const coverImage = await importFile(payload, coverUrl, sd.title)
+    if (!coverImage) throw new Error('Cover photo could not be downloaded')
+    const gallery: { image: number; caption?: string }[] = []
+    for (const [url, caption] of sd.gallery) {
+      const id = await importFile(payload, url, caption || sd.title)
+      if (id) gallery.push({ image: id, caption: caption || undefined })
+    }
+    const content = await htmlToRichText(payload, sd.html, sd.title)
+    const data = {
+      title: sd.title, slug: sd.slug, status: 'published', showOnHome: true, order: sd.order,
+      partner: sd.partner, location: sd.location, period: sd.period, projectStatus: sd.projectStatus,
+      summary: sd.summary, coverImage, content, gallery,
+      highlights: sd.highlights.map(([value, label]) => ({ value, label })),
+    }
+    const found = await payload.find({ collection: 'projects', where: { slug: { equals: sd.slug } }, limit: 1, depth: 0 })
+    if (found.docs[0]) await payload.update({ collection: 'projects', id: found.docs[0].id, data: data as any })
+    else await payload.create({ collection: 'projects', data: data as any })
+    await addRedirect(payload, '/' + sd.wpSlug, '/projects/' + sd.slug)
+    return sd.title
   }
   const item = job.item
   if (job.kind === 'post') {
@@ -352,7 +382,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }
