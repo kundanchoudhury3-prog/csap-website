@@ -495,3 +495,20 @@ div.bc-slide { cursor: default; }
   .bc-arrow.prev { left: 2%; }
   .bc-arrow.next { right: 2%; }
 }
+
+/* Course cards: photo reveal + smooth hover */
+.course-art { position: relative; height: 190px; }
+.course-art.photo img { object-fit: cover; object-position: center; }
+.course-art.photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 26, 58, 0) 55%, rgba(11, 26, 58, 0.55) 100%); pointer-events: none; }
+.course-art-tag { position: absolute; left: 12px; bottom: 12px; z-index: 2; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.92); color: var(--navy); font-size: 12px; font-weight: 700; transform: translateY(6px); opacity: 0; transition: opacity 0.4s 0.15s, transform 0.5s 0.15s var(--ease); }
+.course.in .course-art-tag, .course:hover .course-art-tag { opacity: 1; transform: none; }
+/* curtain reveal when the card scrolls into view */
+.course.reveal .course-art.photo img { clip-path: inset(0 0 100% 0); transform: scale(1.15); transition: clip-path 1.1s cubic-bezier(0.7, 0, 0.2, 1), transform 1.6s var(--ease); transition-delay: calc(var(--d, 0s) + 0.15s); }
+.course.reveal.in .course-art.photo img { clip-path: inset(0 0 0 0); transform: scale(1); }
+.course:hover .course-art.photo img { transform: scale(1.08); transition: transform 0.8s var(--ease); }
+/* light sweep on hover */
+.shine { position: absolute; top: 0; left: -60%; width: 40%; height: 100%; z-index: 1; background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%); transform: skewX(-18deg); pointer-events: none; }
+.course:hover .shine { animation: sweep 0.9s var(--ease); }
+@keyframes sweep { from { left: -60%; } to { left: 130%; } }
+.course:hover { border-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .course.reveal .course-art.photo img { clip-path: none; transform: none; } }

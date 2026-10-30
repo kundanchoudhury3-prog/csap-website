@@ -13,8 +13,9 @@ import { testimonialSeeds } from './testimonialSeeds'
 import { gallerySeeds } from './gallerySeeds'
 import { teamRemoved, teamSeeds } from './teamSeeds'
 import { bannerSeeds } from './bannerSeeds'
+import { courseSeeds } from './courseSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -231,6 +232,7 @@ type Job =
   | { kind: 'team'; seed: (typeof teamSeeds)[number] }
   | { kind: 'team-cleanup' }
   | { kind: 'banner'; url: string; order: number }
+  | { kind: 'course'; seed: (typeof courseSeeds)[number] }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -257,6 +259,11 @@ export function teamJobs(): Parsed {
 /** Jobs that bring the old homepage banner slider into Featured Banners. */
 export function bannerJobs(): Parsed {
   return { jobs: bannerSeeds.map((url, i) => ({ kind: 'banner' as const, url, order: (i + 1) * 10 })), attachments: new Map() }
+}
+
+/** Jobs that create the 4 homepage programmes as real courses with photos. */
+export function courseJobs(): Parsed {
+  return { jobs: courseSeeds.map((seed) => ({ kind: 'course' as const, seed })), attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -303,6 +310,24 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'course') {
+    const c = job.seed
+    const found = await payload.find({ collection: 'courses', where: { slug: { equals: c.slug } }, limit: 1, depth: 0 })
+    const image = await importFile(payload, c.image, c.title)
+    if (found.docs[0]) {
+      // Don't overwrite edits made in the admin — only add a photo if it has none.
+      if (!found.docs[0].image && image) await payload.update({ collection: 'courses', id: found.docs[0].id, data: { image } })
+      return c.title + ' (kept)'
+    }
+    await payload.create({
+      collection: 'courses',
+      data: {
+        title: c.title, slug: c.slug, status: 'published', order: c.order, category: c.category, badge: c.badge,
+        shortDescription: c.shortDescription, modes: [...c.modes], image: image ?? undefined, buyEnabled: false,
+      },
+    })
+    return c.title
   }
   if (job.kind === 'banner') {
     const exists = await payload.find({ collection: 'featured-banners', where: { sourceUrl: { equals: job.url } }, limit: 1, depth: 0 })
@@ -461,7 +486,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'course' ? job.seed.title : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

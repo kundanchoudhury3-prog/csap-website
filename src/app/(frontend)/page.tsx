@@ -130,8 +130,10 @@ export default async function HomePage() {
                 const canBuy = id && fee && ('buyEnabled' in c ? c.buyEnabled : false)
                 return (
                   <article key={id ?? c.title} className="card course reveal" style={{ ['--d' as string]: `${i * 0.12}s` }}>
-                    <div className="course-art">
+                    <div className={`course-art${img ? ' photo' : ''}`}>
                       {img ? <img src={img} alt={'image' in c ? mediaAlt(c.image, c.title) : c.title} loading="lazy" /> : <CourseArt category={c.category} />}
+                      {img && <span className="course-art-tag">{c.category}</span>}
+                      <span className="shine" aria-hidden="true" />
                     </div>
                     {c.badge && <span className={`badge${i === 0 ? ' gold' : ''}`}>{c.badge}</span>}
                     <h3>{c.title}</h3>
