@@ -578,3 +578,5 @@ div.bc-slide { cursor: default; }
 .social .social-telegram:hover { background: #229ed9; }
 .social .social-x:hover { background: #000; }
 .social .social-linkedin:hover { background: #0a66c2; }
+.auth-form .forgot-link { justify-self: end; font-size: 14px; font-weight: 600; color: var(--navy); margin-top: -6px; }
+.auth-card .form-msg a { color: inherit; font-weight: 700; }

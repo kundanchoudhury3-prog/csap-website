@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { EXPERIMENTAL_TableFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
@@ -40,6 +41,22 @@ export default buildConfig({
     meta: { titleSuffix: ' — CSAP Admin' },
     importMap: { baseDir: path.resolve(dirname) },
   },
+  // Emails (student "Forgot password"). Works with Gmail (app password), Brevo, Resend or any SMTP.
+  ...(process.env.SMTP_HOST
+    ? {
+        email: nodemailerAdapter({
+          defaultFromAddress: process.env.EMAIL_FROM || process.env.SMTP_USER || 'csapassam@gmail.com',
+          defaultFromName: 'CSAP IAS Academy',
+          skipVerify: true,
+          transportOptions: {
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT || 465),
+            secure: Number(process.env.SMTP_PORT || 465) === 465,
+            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+          },
+        }),
+      }
+    : {}),
   collections: [FeaturedBanners, Courses, DemoClasses, Team, Projects, GalleryPhotos, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Students, Downloads, Leads, Orders, Redirects, Users],
   globals: [SiteSettings],
   editor: lexicalEditor({

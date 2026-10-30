@@ -29,7 +29,7 @@ Next.js website (fast, modern, smooth animations) with a built-in admin panel at
 | **Homepage & Site Settings** | Top announcement bar, hero title/text/photo, stats, Smartbook section, address, phone, email, WhatsApp, app link, social links |
 | **Team members** | Add staff logins (Admin = full control, Staff = content & leads) |
 
-Free resource PDFs open only for logged-in students (`/register`, `/login`, `/account`). Staff logged into /admin can also open them.
+Free resource PDFs open only for logged-in students (`/register`, `/login`, `/account`). Students can reset a forgotten password at `/forgot-password` (needs the SMTP_* email settings). Staff logged into /admin can also open them.
 
 Until you add content, the site shows sensible default text so it never looks empty.
 
