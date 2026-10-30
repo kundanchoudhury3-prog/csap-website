@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/blogs`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${base}/resources-archive`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${base}/projects`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/gallery`, changeFrequency: 'weekly', priority: 0.6 },
     ...projects.docs.map((p) => ({ url: `${base}/projects/${p.slug}`, lastModified: p.updatedAt })),
     ...resourceTypes.map((t) => ({ url: `${base}/resources-archive/${t.listPath}`, changeFrequency: 'daily' as const, priority: 0.7 })),
     ...posts.docs.map((p) => ({ url: `${base}${p.type === 'announcement' ? '/announcements' : ''}/${p.slug}`, lastModified: p.updatedAt })),

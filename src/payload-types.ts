@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     courses: Course;
     projects: Project;
+    'gallery-photos': GalleryPhoto;
     centres: Centre;
     toppers: Topper;
     testimonials: Testimonial;
@@ -90,6 +91,7 @@ export interface Config {
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    'gallery-photos': GalleryPhotosSelect<false> | GalleryPhotosSelect<true>;
     centres: CentresSelect<false> | CentresSelect<true>;
     toppers: ToppersSelect<false> | ToppersSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
@@ -307,6 +309,26 @@ export interface Project {
     title?: string | null;
     description?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Photos on the /gallery page. Use "Album" to group them (e.g. Our Events, Classroom, Seminars) — each album becomes a tab.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-photos".
+ */
+export interface GalleryPhoto {
+  id: number;
+  image: number | Media;
+  caption?: string | null;
+  album: string;
+  date?: string | null;
+  order?: number | null;
+  /**
+   * Imported from WordPress
+   */
+  sourceUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -643,6 +665,10 @@ export interface PayloadLockedDocument {
         value: number | Project;
       } | null)
     | ({
+        relationTo: 'gallery-photos';
+        value: number | GalleryPhoto;
+      } | null)
+    | ({
         relationTo: 'centres';
         value: number | Centre;
       } | null)
@@ -790,6 +816,20 @@ export interface ProjectsSelect<T extends boolean = true> {
         title?: T;
         description?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-photos_select".
+ */
+export interface GalleryPhotosSelect<T extends boolean = true> {
+  image?: T;
+  caption?: T;
+  album?: T;
+  date?: T;
+  order?: T;
+  sourceUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }

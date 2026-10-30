@@ -10,8 +10,9 @@ import type { Payload } from 'payload'
 import { resourceTypes } from './resourceTypes'
 import { projectSeeds } from './projectSeeds'
 import { testimonialSeeds } from './testimonialSeeds'
+import { gallerySeeds } from './gallerySeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -224,6 +225,7 @@ type Job =
   | { kind: 'fixed-redirects' }
   | { kind: 'project'; seed: (typeof projectSeeds)[number] }
   | { kind: 'testimonial'; seed: (typeof testimonialSeeds)[number] }
+  | { kind: 'gallery'; url: string; order: number }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -235,6 +237,11 @@ export function projectJobs(): Parsed {
 /** Jobs that bring the old homepage testimonials in as Testimonials + Toppers. */
 export function testimonialJobs(): Parsed {
   return { jobs: testimonialSeeds.map((seed) => ({ kind: 'testimonial' as const, seed })), attachments: new Map() }
+}
+
+/** Jobs that bring the old gallery page photos into Gallery (album "Our Events"). */
+export function galleryJobs(): Parsed {
+  return { jobs: gallerySeeds.map((url, i) => ({ kind: 'gallery' as const, url, order: (i + 1) * 10 })), attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -281,6 +288,14 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'gallery') {
+    const exists = await payload.find({ collection: 'gallery-photos', where: { sourceUrl: { equals: job.url } }, limit: 1, depth: 0 })
+    if (exists.docs[0]) return 'already imported'
+    const image = await importFile(payload, job.url, 'CSAP IAS Academy event')
+    if (!image) throw new Error('Photo could not be downloaded: ' + job.url)
+    await payload.create({ collection: 'gallery-photos', data: { image, album: 'Our Events', order: job.order, sourceUrl: job.url } })
+    return job.url.split('/').pop()
   }
   if (job.kind === 'testimonial') {
     const t = job.seed
@@ -402,7 +417,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

@@ -21,6 +21,8 @@ export async function Footer() {
             <h4>Courses</h4>
             {courses.docs.map((c) => <a key={c.id} href="/#courses">{c.title}</a>)}
             <a href="/blogs">Blog</a>
+            <a href="/projects">Government projects</a>
+            <a href="/gallery">Gallery</a>
           </div>
           <div>
             <h4>Free resources</h4>

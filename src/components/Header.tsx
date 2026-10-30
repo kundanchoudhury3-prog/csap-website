@@ -23,6 +23,7 @@ export function Header() {
         <div className="nav-links">
           <a href="/#courses">Courses</a>
           <a href="/projects">Projects</a>
+          <a href="/gallery">Gallery</a>
           <a href="/resources-archive">Free Resources</a>
           <a href="/blogs">Blog</a>
           <a href="/#smartbook">Smartbook</a>

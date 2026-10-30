@@ -1,6 +1,7 @@
 import * as migration_20261030_111247_initial from './20261030_111247_initial';
 import * as migration_20261030_121930_add_blob_storage_fields from './20261030_121930_add_blob_storage_fields';
 import * as migration_20261030_123940_add_projects from './20261030_123940_add_projects';
+import * as migration_20261030_131111_add_gallery from './20261030_131111_add_gallery';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20261030_123940_add_projects.up,
     down: migration_20261030_123940_add_projects.down,
-    name: '20261030_123940_add_projects'
+    name: '20261030_123940_add_projects',
+  },
+  {
+    up: migration_20261030_131111_add_gallery.up,
+    down: migration_20261030_131111_add_gallery.down,
+    name: '20261030_131111_add_gallery'
   },
 ];
