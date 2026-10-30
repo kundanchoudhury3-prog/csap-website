@@ -54,10 +54,10 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
-    // Images & PDFs are stored in Cloudflare R2 (S3-compatible) when R2 keys are set.
-    // Without keys (e.g. on your computer) files are saved in the local /media folder.
+    // Media uploads go to Cloudflare R2 only when R2_FOR_MEDIA=1 (existing images live in Vercel Blob).
+    // The R2 keys are also used to move the free-resource PDFs to R2 (see /api/wp-import?only=pdfs).
     s3Storage({
-      enabled: Boolean(process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID),
+      enabled: process.env.R2_FOR_MEDIA === '1' && Boolean(process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID),
       collections: {
         media: process.env.R2_PUBLIC_URL
           ? { generateFileURL: ({ filename, prefix }) => [process.env.R2_PUBLIC_URL, prefix, filename].filter(Boolean).join('/') }
@@ -75,7 +75,7 @@ export default buildConfig({
     }),
     // Fallback on Vercel when R2 is not set up yet: Vercel Blob (token is added when a Blob store is connected).
     vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN) && !(process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID),
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN) && process.env.R2_FOR_MEDIA !== '1',
       collections: { media: true },
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
     }),
