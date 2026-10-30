@@ -4,7 +4,7 @@ import './styles.css'
 export const metadata = {
   title: "CSAP IAS Academy — North-East's No. 1 Choice for Civil Services Success",
   description:
-    'CSAP IAS Academy, Guwahati: coaching for UPSC, APSC, SSC and Banking exams with live and recorded classes, mentorship by IAS officers and centres across Assam.',
+    'CSAP IAS Academy, Guwahati: coaching for UPSC, APSC, SSC and Banking exams with live and recorded classes, mentorship and centres across Assam.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -28,7 +28,7 @@ const Check = () => (
 )
 
 const features = [
-  { title: 'Mentorship by IAS officers', text: 'Strategic guidance and insights from experienced officers.', icon: <><path d="M12 3l9 4-9 4-9-4z" /><path d="M7 9v5c0 1.7 2.2 3 5 3s5-1.3 5-3V9" /></> },
+  { title: 'Mentorship', text: 'Strategic guidance and insights from experienced mentors.', icon: <><path d="M12 3l9 4-9 4-9-4z" /><path d="M7 9v5c0 1.7 2.2 3 5 3s5-1.3 5-3V9" /></> },
   { title: 'Top faculties of India', text: 'Building confidence and consistency, not just subject knowledge.', icon: <><circle cx="9" cy="8" r="3" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><circle cx="17" cy="9" r="2.5" /><path d="M16 14.2c2.9.4 5 2.9 5 5.8" /></> },
   { title: 'Live + recorded classes', text: 'Learn at your own pace on the CSAP app, from anywhere.', icon: <><rect x="3" y="5" width="18" height="12" rx="2" /><path d="M10 9l4 2-4 2z" /><path d="M8 21h8" /></> },
   { title: '24/7 helpline', text: 'Preparation support whenever you need it, round the clock.', icon: <><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="14" width="4" height="6" rx="1.5" /><rect x="17" y="14" width="4" height="6" rx="1.5" /></> },
