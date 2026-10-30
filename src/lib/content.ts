@@ -90,3 +90,8 @@ export async function listTeam({ homeOnly = false }: { homeOnly?: boolean } = {}
   const payload = await payloadClient()
   return payload.find({ collection: 'team', where: homeOnly ? { showOnHome: { equals: true } } : {}, sort: 'order', limit: 100, depth: 1 })
 }
+
+export async function listBanners() {
+  const payload = await payloadClient()
+  return payload.find({ collection: 'featured-banners', where: { active: { equals: true } }, sort: 'order', limit: 30, depth: 1 })
+}

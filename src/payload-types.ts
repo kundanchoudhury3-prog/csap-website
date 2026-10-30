@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'featured-banners': FeaturedBanner;
     courses: Course;
     team: Team;
     projects: Project;
@@ -90,6 +91,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'featured-banners': FeaturedBannersSelect<false> | FeaturedBannersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
@@ -150,6 +152,69 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Course / test banners in the sliding carousel below the homepage hero. Clicking a banner opens its link.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "featured-banners".
+ */
+export interface FeaturedBanner {
+  id: number;
+  /**
+   * For your reference and for screen readers, e.g. "Prelims Test Series 2026"
+   */
+  title: string;
+  image: number | Media;
+  /**
+   * Where a click goes: a course/test page or app link, e.g. https://csapiasacademy.akamai.net.in/new-courses/165 or /#courses
+   */
+  link: string;
+  newTab?: boolean | null;
+  active?: boolean | null;
+  order?: number | null;
+  sourceUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  sourceUrl?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
  * Courses shown on the homepage. Lower "Display order" shows first.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -198,45 +263,6 @@ export interface Course {
   buyEnabled?: boolean | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  sourceUrl?: string | null;
-  _objectKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    hero?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * Director, faculty and mentors shown in the "Meet the team" section and on /team.
@@ -694,6 +720,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'featured-banners';
+        value: number | FeaturedBanner;
+      } | null)
+    | ({
         relationTo: 'courses';
         value: number | Course;
       } | null)
@@ -798,6 +828,21 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "featured-banners_select".
+ */
+export interface FeaturedBannersSelect<T extends boolean = true> {
+  title?: T;
+  image?: T;
+  link?: T;
+  newTab?: T;
+  active?: T;
+  order?: T;
+  sourceUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

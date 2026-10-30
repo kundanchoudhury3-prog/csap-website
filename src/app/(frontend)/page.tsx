@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { BuyButton } from '@/components/BuyButton'
+import { BannerCarousel } from '@/components/BannerCarousel'
 import { CentresSlider, type Slide } from '@/components/CentresSlider'
 import { CourseArt } from '@/components/CourseArt'
 import { Footer } from '@/components/Footer'
@@ -7,7 +8,7 @@ import { Header } from '@/components/Header'
 import { PostCard } from '@/components/PostCard'
 import { ProjectsShowcase } from '@/components/ProjectsShowcase'
 import { toShowcase } from '@/components/projectItems'
-import { listPosts, listProjects, listTeam } from '@/lib/content'
+import { listBanners, listPosts, listProjects, listTeam } from '@/lib/content'
 import { resourceTypes } from '@/lib/resourceTypes'
 import { LeadForm } from '@/components/LeadForm'
 import { RevealObserver } from '@/components/RevealObserver'
@@ -32,7 +33,7 @@ const features = [
 ]
 
 export default async function HomePage() {
-  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects, team] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 }), listTeam({ homeOnly: true })])
+  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects, team, banners] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 }), listTeam({ homeOnly: true }), listBanners()])
 
   // Title with the highlighted words in gold italics
   const title = s.heroTitle || ''
@@ -94,16 +95,16 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* CENTRES SLIDESHOW */}
-        <section id="centres" className="centres" aria-label="Our centres">
-          <div className="wrap">
-            <CentresSlider slides={slides} />
-            <div className="slider-foot">
-              <span>Multiple centres across Assam — find the one nearest to you.</span>
-              <a href="#contact" className="link-strong" style={{ color: 'var(--navy)' }}>Contact a centre →</a>
-            </div>
-          </div>
-        </section>
+        {/* FEATURED COURSE / TEST BANNERS */}
+        {banners.docs.length > 0 && (
+          <section className="featured" aria-label="Featured courses and tests">
+            <BannerCarousel
+              banners={banners.docs
+                .map((b) => ({ title: b.title, img: mediaUrl(b.image, 'hero') || mediaUrl(b.image) || '', link: b.link, newTab: b.newTab }))
+                .filter((b) => b.img)}
+            />
+          </section>
+        )}
 
         {/* RESULTS TICKER */}
         <section id="results" className="ticker" aria-label="Recent toppers">
@@ -277,6 +278,19 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
+        )}
+
+        {/* CENTRES SLIDESHOW */}
+        {centres.length > 0 && (
+        <section id="centres" className="centres section tight" aria-label="Our centres">
+          <div className="wrap">
+            <CentresSlider slides={slides} />
+            <div className="slider-foot">
+              <span>Multiple centres across Assam — find the one nearest to you.</span>
+              <a href="#contact" className="link-strong" style={{ color: 'var(--navy)' }}>Contact a centre →</a>
+            </div>
+          </div>
+        </section>
         )}
 
         {/* LEAD FORM */}
