@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     deadline: Date.now() + 230_000,
     skipFiles: q.get('skipFiles') === '1',
     skipPdfs: q.get('skipPdfs') === '1',
+    thumbsOnly: q.get('thumbsOnly') === '1',
     log: (s) => log.push(s),
   })
   return Response.json({ ...r, log: log.slice(-5) })

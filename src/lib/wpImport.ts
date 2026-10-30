@@ -15,7 +15,7 @@ import { teamRemoved, teamSeeds } from './teamSeeds'
 import { bannerSeeds } from './bannerSeeds'
 import { courseSeeds } from './courseSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; thumbsOnly?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -415,6 +415,18 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     return sd.title
   }
   const item = job.item
+  if (job.kind === 'post' && opts.thumbsOnly) {
+    // Only fill in a missing featured image; never touch anything edited in the admin.
+    const title = decode(txt(item.title))
+    const found = await payload.find({ collection: 'posts', where: { wpId: { equals: Number(txt(item['wp:post_id'])) } }, limit: 1, depth: 0 })
+    const post = found.docs[0]
+    if (!post || post.featuredImage) return null
+    const thumbId = meta(item, '_thumbnail_id')
+    const featuredImage = await importFile(payload, thumbId ? attachments.get(thumbId) : meta(item, 'icon'), title)
+    if (!featuredImage) return null
+    await payload.update({ collection: 'posts', id: post.id, data: { featuredImage } })
+    return title + ' (image)'
+  }
   if (job.kind === 'post') {
     const title = decode(txt(item.title))
     const slug = txt(item['wp:post_name'])
