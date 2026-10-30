@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { EXPERIMENTAL_TableFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -64,6 +65,12 @@ export default buildConfig({
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
         },
       },
+    }),
+    // Fallback on Vercel when R2 is not set up yet: Vercel Blob (token is added when a Blob store is connected).
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN) && !(process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID),
+      collections: { media: true },
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
     }),
   ],
 })

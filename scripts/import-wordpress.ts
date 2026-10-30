@@ -3,6 +3,7 @@
  *
  *   npm run import:wordpress -- ./csapiasacademy.WordPress.xml
  *   npm run import:wordpress -- ./export.xml skip-files   (fast test, keeps PDFs/images on old site)
+ *   npm run import:wordpress -- ./export.xml skip-pdfs    (images copied, PDFs stay linked to old site)
  *
  * Safe to run again: items are matched by their WordPress ID and updated, files already
  * downloaded are reused. Keep the old WordPress site online until the import finishes.
@@ -21,6 +22,7 @@ import { resourceTypes } from '../src/lib/resourceTypes'
 const args = process.argv.slice(2)
 const xmlPath = args.find((a) => a.toLowerCase().endsWith('.xml'))
 const SKIP_FILES = args.some((a) => a.replace(/^-+/, '') === 'skip-files') || process.env.SKIP_FILES === '1'
+const SKIP_PDFS = args.some((a) => a.replace(/^-+/, '') === 'skip-pdfs')
 const ONLY = args.find((a) => a.replace(/^-+/, '').startsWith('only='))?.split('=')[1] // posts | pages | resources
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -124,6 +126,8 @@ async function fetchWithRetry(url: string, tries = 3): Promise<Response> {
 async function importFile(payload: Payload, rawUrl: string | undefined, alt: string): Promise<number | null> {
   if (!rawUrl || SKIP_FILES) return null
   if (!/^https?:\/\//.test(rawUrl)) return null
+  // skip-pdfs: bring images now, keep PDFs linked to the old site (move them later, e.g. to R2)
+  if (SKIP_PDFS && !/\.(jpe?g|png|webp|gif|svg|avif)(\?|$)/i.test(rawUrl)) return null
   const url = cleanUrl(rawUrl)
   if (fileCache.has(url)) return fileCache.get(url)!
 
