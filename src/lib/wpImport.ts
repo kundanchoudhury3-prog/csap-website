@@ -1,3 +1,4 @@
+import { postThumbs } from './postThumbSeeds'
 /**
  * WordPress → Payload importer (shared by the CLI script and the /api/wp-import route).
  * Work is split into "jobs" (one per post/page/PDF) so it can run in time-limited batches.
@@ -422,8 +423,9 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     const post = found.docs[0]
     if (!post || post.featuredImage) return null
     const thumbId = meta(item, '_thumbnail_id')
-    const featuredImage = await importFile(payload, thumbId ? attachments.get(thumbId) : meta(item, 'icon'), title)
-    if (!featuredImage) return null
+    const url = postThumbs[Number(txt(item['wp:post_id']))] ?? (thumbId ? attachments.get(thumbId) : meta(item, 'icon'))
+    const featuredImage = await importFile(payload, url, title)
+    if (!featuredImage) throw new Error(`image not downloaded: ${url ?? 'no thumbnail in WordPress'}`)
     await payload.update({ collection: 'posts', id: post.id, data: { featuredImage } })
     return title + ' (image)'
   }
