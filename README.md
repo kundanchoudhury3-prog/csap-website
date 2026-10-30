@@ -15,6 +15,7 @@ Next.js website (fast, modern, smooth animations) with a built-in admin panel at
 | **Centres & Gallery** | The big homepage slideshow — one slide per centre (photo, name, address). Also listed in the footer |
 | **Results & Toppers** | The gold scrolling results strip (name + rank) |
 | **Testimonials** | "In our toppers' own words" cards |
+| **Demo Classes (YouTube)** | "Free demo classes" on the homepage and /demo-classes. Paste a YouTube link — title and thumbnail fill in automatically (you can type your own title or upload a custom thumbnail). Untick *Show on homepage* to keep a video only on /demo-classes |
 | **Blog posts** | Blog at `/blogs`; each post opens at `csap.co.in/<slug>` (same addresses as WordPress). Announcements open at `/announcements/<slug>` |
 | **Blog categories** | Category filters on the blog |
 | **Pages** | Simple pages (About Us, a course or project page) at `csap.co.in/<slug>` |

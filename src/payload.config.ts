@@ -9,6 +9,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { DemoClasses } from './collections/DemoClasses'
 import { Courses } from './collections/Courses'
 import { Centres } from './collections/Centres'
 import { Toppers } from './collections/Toppers'
@@ -39,7 +40,7 @@ export default buildConfig({
     meta: { titleSuffix: ' — CSAP Admin' },
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [FeaturedBanners, Courses, Team, Projects, GalleryPhotos, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Students, Downloads, Leads, Orders, Redirects, Users],
+  collections: [FeaturedBanners, Courses, DemoClasses, Team, Projects, GalleryPhotos, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Students, Downloads, Leads, Orders, Redirects, Users],
   globals: [SiteSettings],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],

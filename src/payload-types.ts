@@ -70,6 +70,7 @@ export interface Config {
   collections: {
     'featured-banners': FeaturedBanner;
     courses: Course;
+    'demo-classes': DemoClass;
     team: Team;
     projects: Project;
     'gallery-photos': GalleryPhoto;
@@ -100,6 +101,7 @@ export interface Config {
   collectionsSelect: {
     'featured-banners': FeaturedBannersSelect<false> | FeaturedBannersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    'demo-classes': DemoClassesSelect<false> | DemoClassesSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'gallery-photos': GalleryPhotosSelect<false> | GalleryPhotosSelect<true>;
@@ -210,6 +212,7 @@ export interface Media {
   id: number;
   alt: string;
   sourceUrl?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -287,6 +290,40 @@ export interface Course {
    * Untick to show an "Enquire" button instead of online payment
    */
   buyEnabled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Free YouTube lectures shown in the "Free demo classes" section and on /demo-classes. Just paste the YouTube link — the title and thumbnail are picked up automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-classes".
+ */
+export interface DemoClass {
+  id: number;
+  /**
+   * e.g. https://youtu.be/xxxxxxxxxxx or https://www.youtube.com/watch?v=xxxxxxxxxxx
+   */
+  youtubeUrl: string;
+  /**
+   * Leave empty to use the YouTube title automatically
+   */
+  title?: string | null;
+  /**
+   * Optional, e.g. Polity, Current Affairs, Assam History
+   */
+  subject?: string | null;
+  /**
+   * Leave empty to use the YouTube thumbnail
+   */
+  thumbnail?: (number | null) | Media;
+  videoId?: string | null;
+  showOnHome?: boolean | null;
+  active?: boolean | null;
+  /**
+   * Smaller number shows first
+   */
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -805,6 +842,10 @@ export interface PayloadLockedDocument {
         value: number | Course;
       } | null)
     | ({
+        relationTo: 'demo-classes';
+        value: number | DemoClass;
+      } | null)
+    | ({
         relationTo: 'team';
         value: number | Team;
       } | null)
@@ -957,6 +998,22 @@ export interface CoursesSelect<T extends boolean = true> {
   batchStart?: T;
   image?: T;
   buyEnabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-classes_select".
+ */
+export interface DemoClassesSelect<T extends boolean = true> {
+  youtubeUrl?: T;
+  title?: T;
+  subject?: T;
+  thumbnail?: T;
+  videoId?: T;
+  showOnHome?: T;
+  active?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1176,6 +1233,7 @@ export interface ResourcesSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   sourceUrl?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1397,19 +1455,21 @@ export interface SiteSetting {
   };
   address?: string | null;
   phone?: string | null;
+  phone2?: string | null;
   email?: string | null;
   /**
    * Number with country code, e.g. 919XXXXXXXXX
    */
   whatsapp?: string | null;
   appLink?: string | null;
-  social?:
-    | {
-        label: string;
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
+  follow?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    youtube?: string | null;
+    telegram?: string | null;
+    x?: string | null;
+    linkedin?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1452,15 +1512,19 @@ export interface SiteSettingsSelect<T extends boolean = true> {
       };
   address?: T;
   phone?: T;
+  phone2?: T;
   email?: T;
   whatsapp?: T;
   appLink?: T;
-  social?:
+  follow?:
     | T
     | {
-        label?: T;
-        url?: T;
-        id?: T;
+        facebook?: T;
+        instagram?: T;
+        youtube?: T;
+        telegram?: T;
+        x?: T;
+        linkedin?: T;
       };
   updatedAt?: T;
   createdAt?: T;

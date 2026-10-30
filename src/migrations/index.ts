@@ -7,6 +7,7 @@ import * as migration_20261030_134522_add_featured_banners from './20261030_1345
 import * as migration_20261030_135301_banner_link_optional from './20261030_135301_banner_link_optional';
 import * as migration_20261030_140959_add_site_logo from './20261030_140959_add_site_logo';
 import * as migration_20261030_141657_add_students_downloads from './20261030_141657_add_students_downloads';
+import * as migration_20261030_145132_add_demo_classes_social from './20261030_145132_add_demo_classes_social';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20261030_141657_add_students_downloads.up,
     down: migration_20261030_141657_add_students_downloads.down,
-    name: '20261030_141657_add_students_downloads'
+    name: '20261030_141657_add_students_downloads',
+  },
+  {
+    up: migration_20261030_145132_add_demo_classes_social.up,
+    down: migration_20261030_145132_add_demo_classes_social.down,
+    name: '20261030_145132_add_demo_classes_social'
   },
 ];

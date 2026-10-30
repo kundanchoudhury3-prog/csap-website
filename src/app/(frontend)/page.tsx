@@ -8,7 +8,9 @@ import { Header } from '@/components/Header'
 import { PostCard } from '@/components/PostCard'
 import { ProjectsShowcase } from '@/components/ProjectsShowcase'
 import { toShowcase } from '@/components/projectItems'
-import { listBanners, listPosts, listProjects, listTeam } from '@/lib/content'
+import { listBanners, listDemoClasses, listPosts, listProjects, listTeam } from '@/lib/content'
+import { DemoVideos } from '@/components/DemoVideos'
+import { toDemoVideos } from '@/lib/demoVideos'
 import { resourceTypes } from '@/lib/resourceTypes'
 import { LeadForm } from '@/components/LeadForm'
 import { RevealObserver } from '@/components/RevealObserver'
@@ -33,7 +35,7 @@ const features = [
 ]
 
 export default async function HomePage() {
-  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects, team, banners] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 }), listTeam({ homeOnly: true }), listBanners()])
+  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects, team, banners, demos] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 }), listTeam({ homeOnly: true }), listBanners(), listDemoClasses({ homeOnly: true, limit: 6 })])
 
   // Title with the highlighted words in gold italics
   const title = s.heroTitle || ''
@@ -153,6 +155,22 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* FREE DEMO CLASSES */}
+        {demos.docs.length > 0 && (
+          <section id="demo-classes" className="section tight demo-band">
+            <div className="wrap">
+              <div className="head-row reveal">
+                <div className="head">
+                  <span className="eyebrow">Free demo classes</span>
+                  <h2 className="h2">Watch our faculty teach — before you join</h2>
+                </div>
+                <a href="/demo-classes" className="link-strong">All demo classes →</a>
+              </div>
+              <DemoVideos videos={toDemoVideos(demos.docs)} />
+            </div>
+          </section>
+        )}
 
         {/* WHY */}
         <section id="why" className="section tight">

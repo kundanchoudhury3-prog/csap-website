@@ -1,4 +1,5 @@
 import { postThumbs } from './postThumbSeeds'
+import { fetchYtTitle } from './youtube'
 /**
  * WordPress → Payload importer (shared by the CLI script and the /api/wp-import route).
  * Work is split into "jobs" (one per post/page/PDF) so it can run in time-limited batches.
@@ -16,7 +17,7 @@ import { teamRemoved, teamSeeds } from './teamSeeds'
 import { bannerSeeds } from './bannerSeeds'
 import { courseSeeds } from './courseSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; thumbsOnly?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; thumbsOnly?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' | 'demos' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -235,6 +236,8 @@ type Job =
   | { kind: 'banner'; url: string; order: number }
   | { kind: 'course'; seed: (typeof courseSeeds)[number] }
   | { kind: 'logo' }
+  | { kind: 'contact' }
+  | { kind: 'demo'; id: string; fallbackTitle: string; order: number }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -269,6 +272,28 @@ export function courseJobs(): Parsed {
 }
 
 /** Job that imports the CSAP logo from the old site into Site Settings. */
+// Free lectures that were embedded in the old WordPress blog posts (newest first) + contact details for the footer.
+const demoSeeds: [string, string][] = [
+  ['NbV_hNzIVu8', 'GST 2.0 Breakthrough: The Tax Game Has Changed'],
+  ['2haAlbPypKI', 'Black Boxes Explained: The Unseen Guardians of Aviation Safety'],
+  ['xsyW-b1kFTU', 'Demographic Trends in India: Key Facts & Figures'],
+  ['9D6pk3AK9bI', 'India UK Free Trade Agreement (FTA)'],
+  ['NVLgbAMTgMk', 'Operation Sindoor: India\u2019s Precision Strike Against Terror'],
+  ['rdYAtH-wp0I', 'Pegasus Spyware Controversy Explained'],
+  ['4IjQdXwCPM0', 'Assam Panchayat Elections: Women\u2019s Role'],
+  ['W91HXwo_BfI', 'Simla Agreement (1972)'],
+  ['SBL8mgFFhUs', 'SAARC Visa Exemption Scheme'],
+  ['gmgwg_LQE2U', 'Queen Sati Sadhani: A Symbol of Strength in Assamese History'],
+  ['QAOP2VYUl7I', 'Republic Day Tableaux 2025'],
+  ['8AeNXu4Wtr4', 'Rat-Hole Mining: Shocking Truths'],
+]
+export function demoJobs(): Parsed {
+  return {
+    jobs: [{ kind: 'contact' as const }, ...demoSeeds.map(([id, fallbackTitle], i) => ({ kind: 'demo' as const, id, fallbackTitle, order: (i + 1) * 10 }))],
+    attachments: new Map(),
+  }
+}
+
 export function logoJobs(): Parsed {
   return { jobs: [{ kind: 'logo' as const }], attachments: new Map() }
 }
@@ -317,6 +342,29 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'contact') {
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: {
+        email: 'csapassam@gmail.com',
+        phone: '+91-91275-15541',
+        phone2: '+91-88118-77068',
+        follow: {
+          facebook: 'https://www.facebook.com/csapassam/',
+          instagram: 'https://www.instagram.com/csap_assam/',
+          youtube: 'https://www.youtube.com/@csap_guwahati',
+        },
+      },
+    })
+    return 'contact details & social links'
+  }
+  if (job.kind === 'demo') {
+    const exists = await payload.find({ collection: 'demo-classes', where: { videoId: { equals: job.id } }, limit: 1, depth: 0 })
+    if (exists.docs[0]) return null
+    const title = (await fetchYtTitle(job.id)) || job.fallbackTitle
+    await payload.create({ collection: 'demo-classes', data: { youtubeUrl: `https://youtu.be/${job.id}`, title, subject: 'Current Affairs', order: job.order, showOnHome: job.order <= 60, active: true } })
+    return title
   }
   if (job.kind === 'logo') {
     const logo = await importFile(payload, 'https://csap.co.in/wp-content/uploads/2024/11/CSAP_Logo.png', 'CSAP IAS Academy logo')
@@ -512,7 +560,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'course' ? job.seed.title : job.kind === 'logo' ? 'logo' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'course' ? job.seed.title : job.kind === 'logo' ? 'logo' : job.kind === 'contact' ? 'contact' : job.kind === 'demo' ? job.id : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

@@ -95,3 +95,14 @@ export async function listBanners() {
   const payload = await payloadClient()
   return payload.find({ collection: 'featured-banners', where: { active: { equals: true } }, sort: 'order', limit: 30, depth: 1 })
 }
+
+export async function listDemoClasses({ homeOnly = false, limit = 100 }: { homeOnly?: boolean; limit?: number } = {}) {
+  const payload = await payloadClient()
+  return payload.find({
+    collection: 'demo-classes',
+    where: { and: [{ active: { equals: true } }, ...(homeOnly ? [{ showOnHome: { equals: true } }] : [])] },
+    sort: 'order',
+    limit,
+    depth: 1,
+  })
+}
