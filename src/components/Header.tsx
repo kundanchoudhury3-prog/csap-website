@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-export function Header() {
+export function Header({ logo }: { logo?: string | null }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -14,7 +14,12 @@ export function Header() {
     <header className={`header${scrolled ? ' scrolled' : ''}`}>
       <nav className="nav wrap" aria-label="Main">
         <a href="/" className="brand">
-          <span className="brand-mark">C</span>
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="brand-logo" src={logo} alt="CSAP IAS Academy logo" />
+          ) : (
+            <span className="brand-mark">C</span>
+          )}
           <span className="brand-name">
             <b>CSAP IAS Academy</b>
             <span>Civil Services Achievers&apos; Point</span>

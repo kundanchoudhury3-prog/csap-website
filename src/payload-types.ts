@@ -1231,6 +1231,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: number;
+  logo?: (number | null) | Media;
   announcement?: {
     enabled?: boolean | null;
     text?: string | null;
@@ -1284,6 +1285,7 @@ export interface SiteSetting {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
+  logo?: T;
   announcement?:
     | T
     | {

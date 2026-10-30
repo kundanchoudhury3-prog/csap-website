@@ -15,7 +15,7 @@ import { teamRemoved, teamSeeds } from './teamSeeds'
 import { bannerSeeds } from './bannerSeeds'
 import { courseSeeds } from './courseSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -233,6 +233,7 @@ type Job =
   | { kind: 'team-cleanup' }
   | { kind: 'banner'; url: string; order: number }
   | { kind: 'course'; seed: (typeof courseSeeds)[number] }
+  | { kind: 'logo' }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -264,6 +265,11 @@ export function bannerJobs(): Parsed {
 /** Jobs that create the 4 homepage programmes as real courses with photos. */
 export function courseJobs(): Parsed {
   return { jobs: courseSeeds.map((seed) => ({ kind: 'course' as const, seed })), attachments: new Map() }
+}
+
+/** Job that imports the CSAP logo from the old site into Site Settings. */
+export function logoJobs(): Parsed {
+  return { jobs: [{ kind: 'logo' as const }], attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -310,6 +316,12 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'logo') {
+    const logo = await importFile(payload, 'https://csap.co.in/wp-content/uploads/2024/11/CSAP_Logo.png', 'CSAP IAS Academy logo')
+    if (!logo) throw new Error('Logo could not be downloaded')
+    await payload.updateGlobal({ slug: 'site-settings', data: { logo } })
+    return 'logo set'
   }
   if (job.kind === 'course') {
     const c = job.seed
@@ -486,7 +498,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'course' ? job.seed.title : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'banner' ? job.url : job.kind === 'course' ? job.seed.title : job.kind === 'logo' ? 'logo' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

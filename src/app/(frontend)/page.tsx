@@ -63,7 +63,7 @@ export default async function HomePage() {
           {s.announcement.link && <> · <a href={s.announcement.link}>{s.announcement.linkLabel || 'View'}</a></>}
         </div>
       )}
-      <Header />
+      <Header logo={mediaUrl(s.logo)} />
 
       <main>
         {/* HERO */}

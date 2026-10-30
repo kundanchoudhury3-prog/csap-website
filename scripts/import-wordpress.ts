@@ -12,13 +12,13 @@
 import fs from 'fs'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { bannerJobs, courseJobs, galleryJobs, parseExport, projectJobs, runImport, teamJobs, testimonialJobs } from '../src/lib/wpImport'
+import { bannerJobs, courseJobs, galleryJobs, logoJobs, parseExport, projectJobs, runImport, teamJobs, testimonialJobs } from '../src/lib/wpImport'
 
 // Options come as plain words after the file name (Payload's runner drops "--" flags)
 const args = process.argv.slice(2)
 const flag = (n: string) => args.some((a) => a.replace(/^-+/, '') === n)
 const xmlPath = args.find((a) => a.toLowerCase().endsWith('.xml'))
-const only = args.find((a) => a.replace(/^-+/, '').startsWith('only='))?.split('=')[1] as 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | undefined
+const only = args.find((a) => a.replace(/^-+/, '').startsWith('only='))?.split('=')[1] as 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' | 'banners' | 'courses' | 'logo' | undefined
 
 async function main() {
   if (!xmlPath || !fs.existsSync(xmlPath)) {
@@ -27,7 +27,7 @@ async function main() {
   }
   const payload = await getPayload({ config })
   console.log('Reading', xmlPath)
-  const parsed = only === 'projects' ? projectJobs() : only === 'testimonials' ? testimonialJobs() : only === 'gallery' ? galleryJobs() : only === 'team' ? teamJobs() : only === 'banners' ? bannerJobs() : only === 'courses' ? courseJobs() : parseExport(fs.readFileSync(xmlPath, 'utf8'), only)
+  const parsed = only === 'projects' ? projectJobs() : only === 'testimonials' ? testimonialJobs() : only === 'gallery' ? galleryJobs() : only === 'team' ? teamJobs() : only === 'banners' ? bannerJobs() : only === 'courses' ? courseJobs() : only === 'logo' ? logoJobs() : parseExport(fs.readFileSync(xmlPath, 'utf8'), only)
   console.log(`${parsed.jobs.length} items to import`)
   const r = await runImport(payload, parsed, { skipFiles: flag('skip-files'), skipPdfs: flag('skip-pdfs'), log: console.log })
   const s = r.stats

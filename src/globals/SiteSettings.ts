@@ -13,6 +13,7 @@ export const SiteSettings: GlobalConfig = {
         {
           label: 'Top bar & Hero',
           fields: [
+            { name: 'logo', label: 'Logo (transparent PNG, shown in the header)', type: 'upload', relationTo: 'media' },
             {
               name: 'announcement',
               type: 'group',

@@ -512,3 +512,14 @@ div.bc-slide { cursor: default; }
 @keyframes sweep { from { left: -60%; } to { left: 130%; } }
 .course:hover { border-color: var(--gold); }
 @media (prefers-reduced-motion: reduce) { .course.reveal .course-art.photo img { clip-path: none; transform: none; } }
+
+/* Header logo + bigger brand name */
+.brand { gap: 14px; }
+.brand-logo { height: 58px; width: auto; max-width: 80px; object-fit: contain; display: block; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25)); }
+.brand-name b { font-size: 23px; letter-spacing: 0.01em; }
+.brand-name span { font-size: 13.5px; margin-top: 2px; }
+@media (max-width: 600px) {
+  .brand-logo { height: 46px; }
+  .brand-name b { font-size: 19px; }
+  .brand-name span { font-size: 12px; }
+}
