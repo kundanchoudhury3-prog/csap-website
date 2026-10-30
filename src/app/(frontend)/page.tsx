@@ -7,11 +7,12 @@ import { Header } from '@/components/Header'
 import { PostCard } from '@/components/PostCard'
 import { ProjectsShowcase } from '@/components/ProjectsShowcase'
 import { toShowcase } from '@/components/projectItems'
-import { listPosts, listProjects } from '@/lib/content'
+import { listPosts, listProjects, listTeam } from '@/lib/content'
 import { resourceTypes } from '@/lib/resourceTypes'
 import { LeadForm } from '@/components/LeadForm'
 import { RevealObserver } from '@/components/RevealObserver'
 import { TestimonialsSlider } from '@/components/TestimonialsSlider'
+import { TeamSection } from '@/components/TeamSection'
 import { formatINR, getHomeData } from '@/lib/data'
 import { fallbackCourses, fallbackTestimonials, fallbackToppers } from '@/lib/fallback'
 import { mediaAlt, mediaUrl } from '@/lib/media'
@@ -31,7 +32,7 @@ const features = [
 ]
 
 export default async function HomePage() {
-  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 })])
+  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects, team] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 }), listTeam({ homeOnly: true })])
 
   // Title with the highlighted words in gold italics
   const title = s.heroTitle || ''
@@ -168,6 +169,22 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* TEAM */}
+        {team.docs.length > 0 && (
+          <section id="team" className="section tight">
+            <div className="wrap">
+              <div className="head-row reveal">
+                <div className="head">
+                  <span className="eyebrow">CSAP Team</span>
+                  <h2 className="h2">Meet the people behind your preparation</h2>
+                </div>
+                <a href="/team" className="link-strong">Full team →</a>
+              </div>
+              <TeamSection members={team.docs} />
+            </div>
+          </section>
+        )}
 
         {/* GOVERNMENT PROJECTS */}
         {projects.docs.length > 0 && (

@@ -23,6 +23,7 @@ export async function Footer() {
             <a href="/blogs">Blog</a>
             <a href="/projects">Government projects</a>
             <a href="/gallery">Gallery</a>
+            <a href="/team">Our team</a>
           </div>
           <div>
             <h4>Free resources</h4>

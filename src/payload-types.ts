@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     courses: Course;
+    team: Team;
     projects: Project;
     'gallery-photos': GalleryPhoto;
     centres: Centre;
@@ -90,6 +91,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    team: TeamSelect<false> | TeamSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'gallery-photos': GalleryPhotosSelect<false> | GalleryPhotosSelect<true>;
     centres: CentresSelect<false> | CentresSelect<true>;
@@ -235,6 +237,41 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Director, faculty and mentors shown in the "Meet the team" section and on /team.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team".
+ */
+export interface Team {
+  id: number;
+  name: string;
+  /**
+   * e.g. Director, Senior Faculty
+   */
+  role: string;
+  /**
+   * e.g. 7+ years
+   */
+  experience?: string | null;
+  /**
+   * e.g. History, Art & Culture
+   */
+  subjects?: string | null;
+  photo?: (number | null) | Media;
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  bio?: string | null;
+  linkedin?: string | null;
+  showOnHome?: boolean | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Government / institutional projects. Projects with "Show on homepage" ticked appear in the big homepage slideshow; every project has its own page at /projects/<slug>.
@@ -661,6 +698,10 @@ export interface PayloadLockedDocument {
         value: number | Course;
       } | null)
     | ({
+        relationTo: 'team';
+        value: number | Team;
+      } | null)
+    | ({
         relationTo: 'projects';
         value: number | Project;
       } | null)
@@ -776,6 +817,29 @@ export interface CoursesSelect<T extends boolean = true> {
   batchStart?: T;
   image?: T;
   buyEnabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team_select".
+ */
+export interface TeamSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  experience?: T;
+  subjects?: T;
+  photo?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  bio?: T;
+  linkedin?: T;
+  showOnHome?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }

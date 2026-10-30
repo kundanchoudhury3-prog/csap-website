@@ -11,8 +11,9 @@ import { resourceTypes } from './resourceTypes'
 import { projectSeeds } from './projectSeeds'
 import { testimonialSeeds } from './testimonialSeeds'
 import { gallerySeeds } from './gallerySeeds'
+import { teamSeeds } from './teamSeeds'
 
-export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' }
+export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' }
 let opts: ImportOptions = {}
 
 // WordPress pages that are user-account screens or are now built into the new site.
@@ -226,6 +227,7 @@ type Job =
   | { kind: 'project'; seed: (typeof projectSeeds)[number] }
   | { kind: 'testimonial'; seed: (typeof testimonialSeeds)[number] }
   | { kind: 'gallery'; url: string; order: number }
+  | { kind: 'team'; seed: (typeof teamSeeds)[number] }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -242,6 +244,11 @@ export function testimonialJobs(): Parsed {
 /** Jobs that bring the old gallery page photos into Gallery (album "Our Events"). */
 export function galleryJobs(): Parsed {
   return { jobs: gallerySeeds.map((url, i) => ({ kind: 'gallery' as const, url, order: (i + 1) * 10 })), attachments: new Map() }
+}
+
+/** Jobs that bring the old CSAP Team into Admin → CSAP Team. */
+export function teamJobs(): Parsed {
+  return { jobs: teamSeeds.map((seed) => ({ kind: 'team' as const, seed })), attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -288,6 +295,18 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     ]
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
+  }
+  if (job.kind === 'team') {
+    const m = job.seed
+    const photo = await importFile(payload, m.photo, m.name)
+    const data = {
+      name: m.name, role: m.role, experience: m.experience || undefined, subjects: m.subjects || undefined,
+      photo: photo ?? undefined, highlights: m.highlights.map((text) => ({ text })), showOnHome: true, order: m.order,
+    }
+    const f = await payload.find({ collection: 'team', where: { name: { equals: m.name } }, limit: 1, depth: 0 })
+    if (f.docs[0]) await payload.update({ collection: 'team', id: f.docs[0].id, data })
+    else await payload.create({ collection: 'team', data })
+    return m.name
   }
   if (job.kind === 'gallery') {
     const exists = await payload.find({ collection: 'gallery-photos', where: { sourceUrl: { equals: job.url } }, limit: 1, depth: 0 })
@@ -417,7 +436,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

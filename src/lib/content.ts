@@ -85,3 +85,8 @@ export async function findProject(slug: string) {
   })
   return r.docs[0] ?? null
 }
+
+export async function listTeam({ homeOnly = false }: { homeOnly?: boolean } = {}) {
+  const payload = await payloadClient()
+  return payload.find({ collection: 'team', where: homeOnly ? { showOnHome: { equals: true } } : {}, sort: 'order', limit: 100, depth: 1 })
+}
