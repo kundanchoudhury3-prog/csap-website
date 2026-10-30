@@ -20,6 +20,7 @@ import { Categories } from './collections/Categories'
 import { Pages } from './collections/Pages'
 import { Resources } from './collections/Resources'
 import { Redirects } from './collections/Redirects'
+import { Projects } from './collections/Projects'
 import { SiteSettings } from './globals/SiteSettings'
 import { migrations } from './migrations'
 
@@ -33,7 +34,7 @@ export default buildConfig({
     meta: { titleSuffix: ' — CSAP Admin' },
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Courses, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Leads, Orders, Redirects, Users],
+  collections: [Courses, Projects, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Leads, Orders, Redirects, Users],
   globals: [SiteSettings],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],

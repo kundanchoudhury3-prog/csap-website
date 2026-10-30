@@ -22,7 +22,7 @@ export function Header() {
         </a>
         <div className="nav-links">
           <a href="/#courses">Courses</a>
-          <a href="/#centres">Centres</a>
+          <a href="/projects">Projects</a>
           <a href="/resources-archive">Free Resources</a>
           <a href="/blogs">Blog</a>
           <a href="/#smartbook">Smartbook</a>

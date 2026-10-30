@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     courses: Course;
+    projects: Project;
     centres: Centre;
     toppers: Topper;
     testimonials: Testimonial;
@@ -88,6 +89,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
     centres: CentresSelect<false> | CentresSelect<true>;
     toppers: ToppersSelect<false> | ToppersSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
@@ -231,6 +233,82 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Government / institutional projects. Projects with "Show on homepage" ticked appear in the big homepage slideshow; every project has its own page at /projects/<slug>.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  /**
+   * Web address part, e.g. the-varman-dynasty. Keep old ones unchanged for Google.
+   */
+  slug: string;
+  status?: ('published' | 'draft') | null;
+  showOnHome?: boolean | null;
+  order?: number | null;
+  /**
+   * e.g. Bodoland Territorial Council
+   */
+  partner?: string | null;
+  /**
+   * e.g. Kokrajhar, Assam
+   */
+  location?: string | null;
+  /**
+   * e.g. 2024 – 2025
+   */
+  period?: string | null;
+  projectStatus?: ('ongoing' | 'completed') | null;
+  summary: string;
+  coverImage: number | Media;
+  /**
+   * e.g. "500+" / "Students trained", "12" / "Districts covered"
+   */
+  highlights?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Add as many photos as you like — they appear as a grid that opens full screen.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  seo?: {
+    /**
+     * Title shown in Google. Leave empty to use the page title.
+     */
+    title?: string | null;
+    description?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Each centre with a photo appears in the big homepage slideshow.
@@ -561,6 +639,10 @@ export interface PayloadLockedDocument {
         value: number | Course;
       } | null)
     | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
         relationTo: 'centres';
         value: number | Centre;
       } | null)
@@ -668,6 +750,46 @@ export interface CoursesSelect<T extends boolean = true> {
   batchStart?: T;
   image?: T;
   buyEnabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  showOnHome?: T;
+  order?: T;
+  partner?: T;
+  location?: T;
+  period?: T;
+  projectStatus?: T;
+  summary?: T;
+  coverImage?: T;
+  highlights?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  content?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

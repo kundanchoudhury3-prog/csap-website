@@ -5,7 +5,9 @@ import { CourseArt } from '@/components/CourseArt'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { PostCard } from '@/components/PostCard'
-import { listPosts } from '@/lib/content'
+import { ProjectsShowcase } from '@/components/ProjectsShowcase'
+import { toShowcase } from '@/components/projectItems'
+import { listPosts, listProjects } from '@/lib/content'
 import { resourceTypes } from '@/lib/resourceTypes'
 import { LeadForm } from '@/components/LeadForm'
 import { RevealObserver } from '@/components/RevealObserver'
@@ -28,7 +30,7 @@ const features = [
 ]
 
 export default async function HomePage() {
-  const [{ settings: s, courses, centres, toppers, testimonials }, latest] = await Promise.all([getHomeData(), listPosts({ limit: 3 })])
+  const [{ settings: s, courses, centres, toppers, testimonials }, latest, projects] = await Promise.all([getHomeData(), listPosts({ limit: 3 }), listProjects({ homeOnly: true, limit: 8 })])
 
   // Title with the highlighted words in gold italics
   const title = s.heroTitle || ''
@@ -174,6 +176,22 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* GOVERNMENT PROJECTS */}
+        {projects.docs.length > 0 && (
+          <section id="projects" className="projects-band">
+            <div className="wrap">
+              <div className="head-row reveal">
+                <div className="head">
+                  <span className="eyebrow">Our work on the ground</span>
+                  <h2 className="h2">Government projects</h2>
+                </div>
+                <a href="/projects" className="link-strong">All projects →</a>
+              </div>
+              <ProjectsShowcase items={projects.docs.map(toShowcase)} />
+            </div>
+          </section>
+        )}
 
         {/* SMARTBOOK */}
         {smartbook?.enabled && (

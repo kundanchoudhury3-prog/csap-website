@@ -67,3 +67,21 @@ export async function listResources({ type, page = 1, tag, q, limit = 30 }: { ty
 
 export const fmtDate = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : ''
+
+export async function listProjects({ homeOnly = false, limit = 50 }: { homeOnly?: boolean; limit?: number } = {}) {
+  const payload = await payloadClient()
+  const and: Where[] = [{ status: { equals: 'published' } }]
+  if (homeOnly) and.push({ showOnHome: { equals: true } })
+  return payload.find({ collection: 'projects', where: { and }, sort: 'order', limit, depth: 1 })
+}
+
+export async function findProject(slug: string) {
+  const payload = await payloadClient()
+  const r = await payload.find({
+    collection: 'projects',
+    where: { and: [{ slug: { in: slugVariants(slug) } }, { status: { equals: 'published' } }] },
+    limit: 1,
+    depth: 2,
+  })
+  return r.docs[0] ?? null
+}
