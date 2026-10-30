@@ -11,7 +11,7 @@ import { resourceTypes } from './resourceTypes'
 import { projectSeeds } from './projectSeeds'
 import { testimonialSeeds } from './testimonialSeeds'
 import { gallerySeeds } from './gallerySeeds'
-import { teamSeeds } from './teamSeeds'
+import { teamRemoved, teamSeeds } from './teamSeeds'
 
 export type ImportOptions = { skipFiles?: boolean; skipPdfs?: boolean; only?: 'posts' | 'pages' | 'resources' | 'projects' | 'testimonials' | 'gallery' | 'team' }
 let opts: ImportOptions = {}
@@ -228,6 +228,7 @@ type Job =
   | { kind: 'testimonial'; seed: (typeof testimonialSeeds)[number] }
   | { kind: 'gallery'; url: string; order: number }
   | { kind: 'team'; seed: (typeof teamSeeds)[number] }
+  | { kind: 'team-cleanup' }
 
 type Parsed = { jobs: Job[]; attachments: Map<string, string> }
 
@@ -248,7 +249,7 @@ export function galleryJobs(): Parsed {
 
 /** Jobs that bring the old CSAP Team into Admin → CSAP Team. */
 export function teamJobs(): Parsed {
-  return { jobs: teamSeeds.map((seed) => ({ kind: 'team' as const, seed })), attachments: new Map() }
+  return { jobs: [...teamSeeds.map((seed) => ({ kind: 'team' as const, seed })), { kind: 'team-cleanup' as const }], attachments: new Map() }
 }
 
 export function parseExport(xmlText: string, only?: ImportOptions['only']): Parsed {
@@ -296,11 +297,15 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
     for (const [f, t] of fixed) await addRedirect(payload, f, t)
     return
   }
+  if (job.kind === 'team-cleanup') {
+    for (const name of teamRemoved) await payload.delete({ collection: 'team', where: { name: { equals: name } } })
+    return 'removed: ' + teamRemoved.join(', ')
+  }
   if (job.kind === 'team') {
     const m = job.seed
     const photo = await importFile(payload, m.photo, m.name)
     const data = {
-      name: m.name, role: m.role, experience: m.experience || undefined, subjects: m.subjects || undefined,
+      name: m.name, role: m.role, experience: m.experience || '', subjects: m.subjects || '',
       photo: photo ?? undefined, highlights: m.highlights.map((text) => ({ text })), showOnHome: true, order: m.order,
     }
     const f = await payload.find({ collection: 'team', where: { name: { equals: m.name } }, limit: 1, depth: 0 })
@@ -436,7 +441,7 @@ export async function runImport(
       const title = await runJob(payload, job, parsed.attachments)
       if (title) log(`  ✓ [${i + 1}/${parsed.jobs.length}] ${String(title).slice(0, 70)}`)
     } catch (e) {
-      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
+      const name = job.kind === 'fixed-redirects' ? 'redirects' : job.kind === 'team-cleanup' ? 'team cleanup' : job.kind === 'project' ? job.seed.title : job.kind === 'testimonial' ? job.seed.name : job.kind === 'gallery' ? job.url : job.kind === 'team' ? job.seed.name : decode(txt(job.item.title))
       stats.errors.push(`${job.kind} "${name}": ${e instanceof Error ? e.message : e}`)
       log(`  ✗ ${name}`)
     }

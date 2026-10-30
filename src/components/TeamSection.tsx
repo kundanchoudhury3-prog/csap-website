@@ -8,7 +8,7 @@ const Check = () => (
 
 function Photo({ m, size = 'card' }: { m: Team; size?: 'card' | 'hero' }) {
   const src = mediaUrl(m.photo, size) || mediaUrl(m.photo)
-  return src ? <img src={src} alt={m.name} loading="lazy" /> : <span className="tm-initial">{m.name.charAt(0)}</span>
+  return <span className="tm-avatar">{src ? <img src={src} alt={m.name} loading="lazy" /> : <span className="tm-initial">{m.name.charAt(0)}</span>}</span>
 }
 
 /** Director spotlight + faculty cards that flip up their qualifications on hover. */

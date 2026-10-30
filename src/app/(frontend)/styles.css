@@ -422,3 +422,25 @@ img { max-width: 100%; display: block; }
   .tm-more { position: static; transform: none; background: var(--navy); padding: 16px 18px 20px; }
   .tm-more b { display: none; }
 }
+
+/* Team photos: round portrait on a clean background (photos come with their own grey frame) */
+.tm-photo { aspect-ratio: auto; padding: 26px 0 6px; background: linear-gradient(180deg, var(--chip) 0%, #fff 100%); display: grid; place-items: center; }
+.tm-photo img, .tm-photo .tm-initial { position: static; width: 168px; height: 168px; border-radius: 50%; object-fit: cover; object-position: center; transform: scale(1); box-shadow: 0 0 0 5px #fff, 0 0 0 7px var(--gold), 0 18px 34px -16px rgba(11, 26, 58, 0.45); clip-path: circle(50%); }
+.tm-photo img { transform: none; }
+.tm-card:hover .tm-photo img { transform: scale(1.04); }
+.tm-photo .tm-initial { display: grid; place-items: center; background: var(--navy-2); }
+.tm-exp { display: none; }
+.tm-info { align-items: center; text-align: center; padding: 14px 18px 22px; }
+.tm-info .tm-role { align-self: center; }
+.tm-lead-photo { flex: 0 0 300px; aspect-ratio: auto; display: grid; place-items: center; padding: 32px; background: var(--navy-2); }
+.tm-lead-photo img { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 6px var(--navy), 0 0 0 9px var(--gold); }
+.tm-lead:hover .tm-lead-photo img { transform: scale(1.03); }
+/* round avatar wrapper (overrides above) */
+.tm-photo img, .tm-photo .tm-initial, .tm-lead-photo img { width: 100%; height: 100%; border-radius: 0; box-shadow: none; clip-path: none; }
+.tm-avatar { display: block; width: 168px; height: 168px; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 5px #fff, 0 0 0 7px var(--gold), 0 18px 34px -16px rgba(11, 26, 58, 0.45); }
+.tm-avatar img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); transition: transform 0.6s var(--ease); }
+.tm-card:hover .tm-avatar img { transform: scale(1.16); }
+.tm-photo .tm-initial { position: static; width: 100%; height: 100%; display: grid; place-items: center; font-size: 56px; }
+.tm-lead-photo .tm-avatar { width: 220px; height: 220px; box-shadow: 0 0 0 6px var(--navy), 0 0 0 9px var(--gold); }
+.tm-lead:hover .tm-lead-photo .tm-avatar img { transform: scale(1.14); }
+.tm-lead-photo img { transform: scale(1.1); }
