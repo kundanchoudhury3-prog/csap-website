@@ -21,10 +21,14 @@ Next.js website (fast, modern, smooth animations) with a built-in admin panel at
 | **Resources (PDFs)** | CSAP News Analysis, Question Papers, CNA Monthly Magazine, Sample Smartbooks, Syllabus — listed at `/resources-archive/...`, each PDF at its old WordPress address |
 | **Redirects** | Send any old address to a new one so links and Google results never break |
 | **Media Library** | All uploaded images and PDFs |
+| **Students (registered)** | Everyone who registered on `/register` (name, mobile, email). Open a student to see every PDF they viewed/downloaded. Export to CSV |
+| **Downloads log** | Every view/download of a free resource: which student, which PDF, when. Filter by student or date |
 | **Leads** | Every "Free Mentorship" form submission. Mark as New / Contacted / Enrolled, add call notes, export to CSV |
 | **Orders (Razorpay)** | Created automatically when someone pays. Turns **Paid** only after Razorpay confirms |
 | **Homepage & Site Settings** | Top announcement bar, hero title/text/photo, stats, Smartbook section, address, phone, email, WhatsApp, app link, social links |
 | **Team members** | Add staff logins (Admin = full control, Staff = content & leads) |
+
+Free resource PDFs open only for logged-in students (`/register`, `/login`, `/account`). Staff logged into /admin can also open them.
 
 Until you add content, the site shows sensible default text so it never looks empty.
 

@@ -523,3 +523,18 @@ div.bc-slide { cursor: default; }
   .brand-name b { font-size: 19px; }
   .brand-name span { font-size: 12px; }
 }
+
+/* Student register / login */
+.auth-wrap { padding: 56px 16px 96px; background: radial-gradient(circle at 12% 20%, #fff3da 0, transparent 32%), radial-gradient(circle at 88% 70%, #e7ecf8 0, transparent 34%), var(--ground); }
+.auth-card { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: clamp(28px, 5vw, 56px); text-align: center; box-shadow: 0 30px 60px -36px rgba(11, 26, 58, 0.35); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.auth-pill { padding: 8px 18px; border-radius: 999px; background: #fff3da; border: 1px solid var(--gold); color: #a35a00; font-weight: 700; }
+.auth-card h1 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; color: var(--navy); }
+.auth-form { width: 100%; max-width: 520px; text-align: left; margin-top: 8px; grid-template-columns: 1fr 1fr; }
+.auth-form .btn { width: 100%; }
+@media (max-width: 560px) { .auth-form { grid-template-columns: 1fr; } }
+/* locked resource */
+.gate { max-width: 620px; margin: 0 auto; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 40px 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.gate-ico { width: 64px; height: 64px; border-radius: 18px; background: #fff3da; display: grid; place-items: center; }
+.gate h2 { margin: 0; font-family: var(--serif); font-size: 28px; }
+.gate p { margin: 0 0 6px; color: var(--muted); line-height: 1.6; }
+.gate-note { margin: 0 0 12px; color: var(--muted); font-size: 14px; }

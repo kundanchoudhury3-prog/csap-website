@@ -7,6 +7,7 @@ import { PageHero, Shell } from '@/components/Shell'
 import { findPage, findPost, findRedirect, findResource, fmtDate, listPosts } from '@/lib/content'
 import { mediaUrl } from '@/lib/media'
 import { resourceTypeByPrefix } from '@/lib/resourceTypes'
+import { getViewer } from '@/lib/viewer'
 
 export const dynamic = 'force-dynamic'
 
@@ -129,11 +130,15 @@ export default async function CatchAll({ params }: { params: Params }) {
     )
   }
 
-  // Resource PDF
+  // Resource PDF — only for logged-in students (every view/download is recorded)
   const r = found.doc
   const rt = found.rt
-  const fileUrl = (typeof r.file === 'object' && r.file?.url) || r.externalUrl || null
-  const isPdf = fileUrl ? /\.pdf($|\?)/i.test(fileUrl) || (typeof r.file === 'object' && r.file?.mimeType === 'application/pdf') : false
+  const { canDownload, student } = await getViewer()
+  const here = `/${rt.itemPrefix}/${r.slug}`
+  const rawUrl = (typeof r.file === 'object' && r.file?.url) || r.externalUrl || null
+  const isPdf = rawUrl ? /\.pdf($|\?)/i.test(rawUrl) || (typeof r.file === 'object' && r.file?.mimeType === 'application/pdf') : false
+  const viewUrl = `/api/res/${r.id}?mode=view`
+  const downloadUrl = `/api/res/${r.id}?mode=download`
   return (
     <Shell>
       <PageHero eyebrow={rt.label} title={r.title} intro={r.description}>
@@ -142,21 +147,36 @@ export default async function CatchAll({ params }: { params: Params }) {
           {r.date && <span>· {fmtDate(r.date)}</span>}
           {r.tags?.map((t) => <a key={t} className="tag tag-dark" href={`/resources-archive/${rt.listPath}?category=${encodeURIComponent(t)}`}>{t}</a>)}
         </div>
-        {fileUrl && (
+        {rawUrl && canDownload && (
           <div className="cta-row">
-            <a className="btn btn-gold" href={fileUrl} target="_blank" rel="noopener" download>Download PDF</a>
-            <a className="btn btn-ghost" href={fileUrl} target="_blank" rel="noopener">Open in new tab</a>
+            <a className="btn btn-gold" href={downloadUrl} target="_blank" rel="noopener">Download PDF</a>
+            <a className="btn btn-ghost" href={viewUrl} target="_blank" rel="noopener">Open in new tab</a>
           </div>
         )}
       </PageHero>
       <section className="section">
         <div className="wrap">
-          {fileUrl && isPdf ? (
-            <iframe className="pdf-frame" src={fileUrl} title={r.title} loading="lazy" />
-          ) : fileUrl ? (
-            <img src={fileUrl} alt={r.title} style={{ maxWidth: '100%', borderRadius: 18 }} />
-          ) : (
+          {!rawUrl ? (
             <p>The file for this resource will be added soon.</p>
+          ) : !canDownload ? (
+            <div className="gate reveal">
+              <span className="gate-ico" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0B1A3A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+              </span>
+              <h2>Free for registered students</h2>
+              <p>Register or log in once to view and download this PDF and all other CSAP free resources.</p>
+              <div className="cta-row" style={{ justifyContent: 'center' }}>
+                <a className="btn btn-gold" href={`/register?next=${encodeURIComponent(here)}`}>Register free</a>
+                <a className="btn btn-ghost-dark" href={`/login?next=${encodeURIComponent(here)}`}>Login</a>
+              </div>
+            </div>
+          ) : isPdf ? (
+            <>
+              {student && <p className="gate-note">Logged in as <b>{student.name}</b> · <a href="/account">My downloads</a></p>}
+              <iframe className="pdf-frame" src={viewUrl} title={r.title} loading="lazy" />
+            </>
+          ) : (
+            <a className="btn btn-gold" href={downloadUrl}>Open file</a>
           )}
         </div>
       </section>

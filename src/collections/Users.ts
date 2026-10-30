@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { adminOnly, loggedIn } from '../access'
+import { adminOnly, isAdmin, isStaff, loggedIn } from '../access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -9,7 +9,7 @@ export const Users: CollectionConfig = {
   access: {
     read: loggedIn,
     create: adminOnly,
-    update: ({ req, id }) => req.user?.role === 'admin' || req.user?.id === id,
+    update: ({ req, id }) => isAdmin(req) || (isStaff(req) && req.user?.id === id),
     delete: adminOnly,
   },
   fields: [
@@ -23,7 +23,7 @@ export const Users: CollectionConfig = {
         { label: 'Admin (full control)', value: 'admin' },
         { label: 'Staff (content & leads)', value: 'staff' },
       ],
-      access: { update: ({ req }) => req.user?.role === 'admin' },
+      access: { update: ({ req }) => isAdmin(req) },
     },
   ],
 }

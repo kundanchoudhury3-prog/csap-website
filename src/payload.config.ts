@@ -24,6 +24,8 @@ import { Projects } from './collections/Projects'
 import { GalleryPhotos } from './collections/GalleryPhotos'
 import { Team } from './collections/Team'
 import { FeaturedBanners } from './collections/FeaturedBanners'
+import { Students } from './collections/Students'
+import { Downloads } from './collections/Downloads'
 import { SiteSettings } from './globals/SiteSettings'
 import { migrations } from './migrations'
 
@@ -37,7 +39,7 @@ export default buildConfig({
     meta: { titleSuffix: ' — CSAP Admin' },
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [FeaturedBanners, Courses, Team, Projects, GalleryPhotos, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Leads, Orders, Redirects, Users],
+  collections: [FeaturedBanners, Courses, Team, Projects, GalleryPhotos, Centres, Toppers, Testimonials, Posts, Categories, Pages, Resources, Media, Students, Downloads, Leads, Orders, Redirects, Users],
   globals: [SiteSettings],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],

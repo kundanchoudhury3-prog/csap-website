@@ -3,6 +3,13 @@ import { useEffect, useState } from 'react'
 
 export function Header({ logo }: { logo?: string | null }) {
   const [scrolled, setScrolled] = useState(false)
+  const [me, setMe] = useState<{ name?: string } | null>(null)
+  useEffect(() => {
+    fetch('/api/students/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setMe(j?.user ?? null))
+      .catch(() => setMe(null))
+  }, [])
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
     onScroll()
@@ -35,6 +42,11 @@ export function Header({ logo }: { logo?: string | null }) {
           <a href="/#contact">Contact</a>
         </div>
         <div className="nav-cta">
+          {me ? (
+            <a href="/account" className="btn btn-ghost">Hi, {(me.name || 'Student').split(' ')[0]}</a>
+          ) : (
+            <a href="/login" className="btn btn-ghost">Student Login</a>
+          )}
           <a href="/#mentor" className="btn btn-gold">Free Mentorship</a>
         </div>
       </nav>

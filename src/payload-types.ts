@@ -63,6 +63,7 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
+    students: StudentAuthOperations;
     users: UserAuthOperations;
   };
   blocks: {};
@@ -80,6 +81,8 @@ export interface Config {
     pages: Page;
     resources: Resource;
     media: Media;
+    students: Student;
+    downloads: Download;
     leads: Lead;
     orders: Order;
     redirects: Redirect;
@@ -89,7 +92,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    students: {
+      downloads: 'downloads';
+    };
+  };
   collectionsSelect: {
     'featured-banners': FeaturedBannersSelect<false> | FeaturedBannersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
@@ -104,6 +111,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     resources: ResourcesSelect<false> | ResourcesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    students: StudentsSelect<false> | StudentsSelect<true>;
+    downloads: DownloadsSelect<false> | DownloadsSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -127,10 +136,28 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: Student | User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
+  };
+}
+export interface StudentAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
   };
 }
 export interface UserAuthOperations {
@@ -183,7 +210,6 @@ export interface Media {
   id: number;
   alt: string;
   sourceUrl?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -611,6 +637,57 @@ export interface Resource {
   createdAt: string;
 }
 /**
+ * Students who registered on the website to download free resources. Open a student to see everything they downloaded.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students".
+ */
+export interface Student {
+  id: number;
+  name: string;
+  phone: string;
+  downloads?: {
+    docs?: (number | Download)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'students';
+}
+/**
+ * Every time a registered student opens or downloads a free resource. Filter by student or resource.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "downloads".
+ */
+export interface Download {
+  id: number;
+  student: number | Student;
+  resource?: (number | null) | Resource;
+  title?: string | null;
+  resourceType?: string | null;
+  action?: ('download' | 'view') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Every "Free Mentorship" form submission from the website lands here.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -772,6 +849,14 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'students';
+        value: number | Student;
+      } | null)
+    | ({
+        relationTo: 'downloads';
+        value: number | Download;
+      } | null)
+    | ({
         relationTo: 'leads';
         value: number | Lead;
       } | null)
@@ -788,10 +873,15 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'students';
+        value: number | Student;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -801,10 +891,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'students';
+        value: number | Student;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   key?: string | null;
   value?:
     | {
@@ -1081,7 +1176,6 @@ export interface ResourcesSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   sourceUrl?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1117,6 +1211,45 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students_select".
+ */
+export interface StudentsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  downloads?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "downloads_select".
+ */
+export interface DownloadsSelect<T extends boolean = true> {
+  student?: T;
+  resource?: T;
+  title?: T;
+  resourceType?: T;
+  action?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
