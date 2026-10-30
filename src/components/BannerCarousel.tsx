@@ -4,20 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 
 export type Banner = { title: string; img: string; link: string; newTab?: boolean | null }
 
-/** Sliding course/test banners: 2 per view on desktop, 1 on phones, auto-slides, swipeable. */
+/** Sliding course/test banners: one big banner in the centre with the next/previous peeking in. */
 export function BannerCarousel({ banners }: { banners: Banner[] }) {
-  const [perView, setPerView] = useState(2)
+  const perView = 1
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const touchX = useRef<number | null>(null)
-
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 820px)')
-    const apply = () => setPerView(mq.matches ? 2 : 1)
-    apply()
-    mq.addEventListener('change', apply)
-    return () => mq.removeEventListener('change', apply)
-  }, [])
 
   const pages = Math.max(1, banners.length - perView + 1)
   const go = (d: number) => setIndex((i) => (i + d + pages) % pages)
@@ -49,24 +41,34 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
       aria-roledescription="carousel"
     >
       <div className="bc-viewport">
-        <div className="bc-track" style={{ transform: `translateX(-${(index * 100) / perView}%)` }}>
-          {banners.map((b, i) => (
-            <a
-              key={i}
-              href={b.link}
-              className="bc-slide"
-              style={{ flexBasis: `${100 / perView}%` }}
-              target={b.newTab ? '_blank' : undefined}
-              rel={b.newTab ? 'noopener noreferrer' : undefined}
-              aria-label={b.title}
-              tabIndex={i >= index && i < index + perView ? 0 : -1}
-            >
+        <div className="bc-track" style={{ ['--i' as string]: index }}>
+          {banners.map((b, i) => {
+            const card = (
               <span className="bc-card">
                 <img src={b.img} alt={b.title} loading={i < 2 ? 'eager' : 'lazy'} />
-                <span className="bc-cta">View details →</span>
+                {b.link && <span className="bc-cta">View details →</span>}
               </span>
-            </a>
-          ))}
+            )
+            const cls = `bc-slide${i === index ? ' on' : ''}`
+            return b.link ? (
+              <a
+                key={i}
+                href={b.link}
+                className={cls}
+                target={b.newTab ? '_blank' : undefined}
+                rel={b.newTab ? 'noopener noreferrer' : undefined}
+                aria-label={b.title}
+                tabIndex={i === index ? 0 : -1}
+                onClick={(e) => { if (i !== index) { e.preventDefault(); setIndex(i) } }}
+              >
+                {card}
+              </a>
+            ) : (
+              <div key={i} className={cls} aria-label={b.title} onClick={() => setIndex(i)}>
+                {card}
+              </div>
+            )
+          })}
         </div>
       </div>
       {pages > 1 && (

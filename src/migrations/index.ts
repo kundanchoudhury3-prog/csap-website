@@ -4,6 +4,7 @@ import * as migration_20261030_123940_add_projects from './20261030_123940_add_p
 import * as migration_20261030_131111_add_gallery from './20261030_131111_add_gallery';
 import * as migration_20261030_132906_add_team from './20261030_132906_add_team';
 import * as migration_20261030_134522_add_featured_banners from './20261030_134522_add_featured_banners';
+import * as migration_20261030_135301_banner_link_optional from './20261030_135301_banner_link_optional';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261030_134522_add_featured_banners.up,
     down: migration_20261030_134522_add_featured_banners.down,
-    name: '20261030_134522_add_featured_banners'
+    name: '20261030_134522_add_featured_banners',
+  },
+  {
+    up: migration_20261030_135301_banner_link_optional.up,
+    down: migration_20261030_135301_banner_link_optional.down,
+    name: '20261030_135301_banner_link_optional'
   },
 ];

@@ -100,7 +100,7 @@ export default async function HomePage() {
           <section className="featured" aria-label="Featured courses and tests">
             <BannerCarousel
               banners={banners.docs
-                .map((b) => ({ title: b.title, img: mediaUrl(b.image, 'hero') || mediaUrl(b.image) || '', link: b.link, newTab: b.newTab }))
+                .map((b) => ({ title: b.title, img: mediaUrl(b.image, 'hero') || mediaUrl(b.image) || '', link: b.link || '', newTab: b.newTab }))
                 .filter((b) => b.img)}
             />
           </section>

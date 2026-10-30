@@ -306,11 +306,15 @@ async function runJob(payload: Payload, job: Job, attachments: Map<string, strin
   }
   if (job.kind === 'banner') {
     const exists = await payload.find({ collection: 'featured-banners', where: { sourceUrl: { equals: job.url } }, limit: 1, depth: 0 })
-    if (exists.docs[0]) return 'already imported'
+    if (exists.docs[0]) {
+      // Remove the placeholder link set during the first import — real links are added in the admin.
+      if (exists.docs[0].link === '/#courses') await payload.update({ collection: 'featured-banners', id: exists.docs[0].id, data: { link: '' } })
+      return 'link cleared'
+    }
     const name = decodeURIComponent(job.url.split('/').pop() || 'banner').replace(/\.(jpe?g|png|webp)(\.jpe?g)?$/i, '')
     const image = await importFile(payload, job.url, 'CSAP course banner')
     if (!image) throw new Error('Banner could not be downloaded: ' + job.url)
-    await payload.create({ collection: 'featured-banners', data: { title: name.replace(/[-_]+/g, ' '), image, link: '/#courses', active: true, order: job.order, sourceUrl: job.url } })
+    await payload.create({ collection: 'featured-banners', data: { title: name.replace(/[-_]+/g, ' '), image, link: '', active: true, order: job.order, sourceUrl: job.url } })
     return name
   }
   if (job.kind === 'team-cleanup') {

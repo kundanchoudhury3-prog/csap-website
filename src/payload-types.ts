@@ -165,9 +165,9 @@ export interface FeaturedBanner {
   title: string;
   image: number | Media;
   /**
-   * Where a click goes: a course/test page or app link, e.g. https://csapiasacademy.akamai.net.in/new-courses/165 or /#courses
+   * Paste the course or test page address, e.g. https://csapiasacademy.akamai.net.in/new-courses/165. Leave empty and the banner just shows (not clickable).
    */
-  link: string;
+  link?: string | null;
   newTab?: boolean | null;
   active?: boolean | null;
   order?: number | null;

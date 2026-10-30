@@ -475,3 +475,23 @@ img { max-width: 100%; display: block; }
 /* Centres slideshow, now further down the page: a bit smaller */
 .centres { margin-top: 0; padding-top: 24px; }
 .slider { height: clamp(300px, 36vw, 460px); max-width: 1080px; margin: 0 auto; border-radius: 24px; }
+
+/* Banner carousel v2: one big centred banner with neighbours peeking in */
+.featured { padding: 0 0 56px; }
+.bc { max-width: 1320px; }
+.bc-viewport { border-radius: 0; padding: 10px 0 26px; }
+.bc-track { --w: 74%; padding-left: calc((100% - var(--w)) / 2); transform: translateX(calc(var(--i) * var(--w) * -1)); }
+.bc-slide { flex: 0 0 var(--w) !important; padding: 0 10px; opacity: 0.45; transform: scale(0.92); transition: opacity 0.6s, transform 0.75s cubic-bezier(0.22, 0.8, 0.2, 1); cursor: pointer; }
+.bc-slide.on { opacity: 1; transform: none; }
+.bc-card { border-radius: 22px; box-shadow: 0 30px 60px -30px rgba(11, 26, 58, 0.6); }
+.bc-arrow { top: calc(50% - 8px); width: 50px; height: 50px; font-size: 28px; }
+.bc-arrow.prev { left: calc(13% - 25px); }
+.bc-arrow.next { right: calc(13% - 25px); }
+.bc-dots { margin-top: 4px; }
+div.bc-slide { cursor: default; }
+@media (max-width: 819px) {
+  .bc-track { --w: 88%; }
+  .bc-slide { padding: 0 5px; transform: scale(0.95); }
+  .bc-arrow.prev { left: 2%; }
+  .bc-arrow.next { right: 2%; }
+}
